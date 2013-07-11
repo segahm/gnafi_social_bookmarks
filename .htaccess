@@ -1,0 +1,64 @@
+#suPHP_ConfigPath /home/slugt2/public_html
+Allow from all
+Options +FollowSymlinks -Indexes
+ <Files ~ "\.(inc)$">
+ Order allow,deny
+ Deny from all
+ </Files>
+<IfModule mod_mime.c>
+AddType application/x-xpinstall .xpi
+</IfModule>
+#<IfModule mod_expires.c>
+	ExpiresActive On
+	ExpiresDefault "now"
+	ExpiresByType image/gif "access plus 1 weeks"
+	ExpiresByType image/jpeg "access plus 1 weeks"
+	ExpiresByType text/javascript "access plus 1 weeks"
+#</IfModule>
+RewriteEngine on
+RewriteBase /
+RewriteOptions MaxRedirects=2
+
+#force short domain
+RewriteCond %{HTTP_HOST} ^www\.gnafi\.com [NC]
+RewriteRule ^(.*)$ http://gnafi.com/$1 [R,NC,L,NE]
+
+RewriteCond %{QUERY_STRING} who=.* [NC,OR]
+RewriteCond %{QUERY_STRING} search=.* [NC]
+RewriteCond %{REQUEST_URI} ^/$ [NC]
+RewriteRule ^.*$ /index.php?%{QUERY_STRING} [NC,L,NS,NE]
+
+RewriteRule ^$ /scripts/home.php [NC,L,NS,NE]
+
+RewriteRule ^my /scripts/admin.php [NC,L,NS,NE]
+RewriteRule ^export/html /scripts/sync.php?latesthtml=1 [NC,L,NS,NE]
+RewriteRule ^export/rdf /scripts/sync.php?latestrdf=1 [NC,L,NS,NE]
+RewriteRule ^sync /scripts/sync.php [NC,L,NS,NE]
+RewriteRule ^doc/terms /scripts/doc/terms.php [NC,L,NS,NE]
+RewriteRule ^doc/faq /scripts/doc/help.php [NC,L,NS,NE]
+RewriteRule ^doc/hacks /scripts/doc/hacks.php [NC,L,NS,NE]
+RewriteRule ^doc/welcome /scripts/doc/welcome.php [NC,L,NS,NE]
+RewriteRule ^mine /scripts/private.php [NC,L,NS,NE]
+RewriteRule ^rss/mine /scripts/private.php?out=rss2 [NC,L,NS,NE]
+
+#prevent drect downloads from not our domain
+#if referer is not specified then let it go through
+RewriteCond %{HTTP_REFERER} !gnafi\.com
+RewriteCond %{HTTP_REFERER} ^.+
+RewriteRule ^download.xpi / [R,NC,L,NS,NE]
+
+#RewriteRule ^download.xpi https://addons.mozilla.org/firefox/2380/ [R,L,NC,NS,NE]
+
+RewriteCond %{REQUEST_URI} ^/rss/ [NC]
+RewriteRule ^rss([^?]*) $1?%{QUERY_STRING}&out=rss2 [PT,NC,NS,NE]
+RewriteCond %{REQUEST_URI} ^/json/ [NC]
+RewriteRule ^json([^?]*) $1?%{QUERY_STRING}&out=json [PT,NC,NS,NE]
+RewriteCond %{REQUEST_URI} ^/snip/ [NC]
+RewriteRule ^snip([^?]*) $1?%{QUERY_STRING}&out=snip [PT,NC,NS,NE]
+
+RewriteRule ^p/(popular|recent)$ /tags/$1 [NC,NS,NE]
+RewriteRule ^tags/(.*)\?? /scripts/tags.php?tag=$1 [NC,L,NS,NE]
+
+RewriteRule ^((search)|(p/)) /index.php [NC,L,NS,NE]
+
+RewriteRule ^import /scripts/import.php [NC,L,NS,NE]
